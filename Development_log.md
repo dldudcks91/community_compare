@@ -1,3 +1,7 @@
 **2024-01-08**
 - 아키텍처 UML 작성 시작(google app - draw.io)
 - README.md & Development_object.md 작성
+- 크롤링 관련 정보 수집
+  - youtube "웹크롤링, 어느 커뮤니티까지 뚫어봤니?" by 클리오사회발전연구소
+  - youtube "게시글 크롤링이 소설쓰기라면 대댓글 크롤링은 시쓰기" by 클리오사회발전연구소
+- 일단 한가지 커뮤니티를 파봐야할듯? fm코리아ㄱㄱㄱ
