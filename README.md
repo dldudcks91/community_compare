@@ -29,16 +29,18 @@
 개발일지: https://github.com/dldudcks91/community_compare/blob/main/Development_log.md
 
 Sprint 1. 24.01.08. ~ 24.01.21.
-  아키텍처 구상/배치 및 크롤링 구현
+  아키텍처 구상/배치 및 기본적인 기능 만들기
+  정확한 주제 정하기
   
 Sprint 2. 24.01.22. ~ 24.02.05.
-  실시간 스트리밍 프로그램 제작
+  실시간 스트리밍 프로그램(크롤링) 제작
     
 Sprint 3. 24.02.06. ~ 24.02.18.
   배치 프로그램 제작
     Air-flow
     
 Sprint 4. 24.02.19. ~ 24.03.03.
+
   
 End Project. 24.03.04. ~ 24.03.17.
   마무리 작업
