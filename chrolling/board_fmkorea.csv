@@ -1,0 +1,39 @@
+href,text
+/best,포텐 터짐 최신순
+/best2,포텐 터짐 화제순
+/index.php?mid=humor&sort_index=pop&order_type=desc,유머/이슈 인기글
+/index.php?mid=football_news&sort_index=pop&order_type=desc,축구 소식 인기글
+/humor,유머/움짤/이슈
+/politics,정치/시사
+/mystery,미스터리/공포
+/digital,디지털/컴퓨터/폰
+/football_news,축구 소식통
+/football_world,해외축구
+/football_korean,국내축구
+/baseball,야구
+/basketball,농구
+/other_sports,기타스포츠
+/hotdeal,핫딜
+/stock,주식
+/coin,가상화폐
+/realestate,부동산
+/freedeal,자유쇼핑
+/afreecatv,아프리카TV
+/ib,치지직
+/starcraft,스타크래프트
+/movietv,영화/TV
+/hiphop,힙합
+/vtuber,버튜버
+/mangawebtoon,웹툰/웹소설/만화
+/assapig,운동/건강/아싸
+/personacon,프로필/로고
+/food,음식/여행
+/starfree,연예인잡담
+/subculture,오덕양성소
+/girlgroup,걸그룹
+/girlstar,여자연예인
+/animal,동물/식물
+/fm24free,FM2024
+/fm23free,FM2023
+/fifa_series,EA FC시리즈
+/fifa_online,EA FC온라인
