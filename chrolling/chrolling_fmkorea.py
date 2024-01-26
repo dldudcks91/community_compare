@@ -69,7 +69,7 @@ class ChrollingFmkorea(ChrollingBase):
             
             if response.status_code == 200:
             
-                cookies = response.cookies.items()[0][1]
+                cookies = response.cookies.get_dict()
                 
                 self.last_cookies = cookies
                 self.last_cookies_time = time.time()
@@ -124,8 +124,8 @@ class ChrollingFmkorea(ChrollingBase):
             
             n_view = n_view.text.strip()
             r_view = r_view.text.strip()
-            new_dic['n_view'] = int(n_view) if n_view != '' else 0
-            new_dic['r_view'] = int(r_view) if r_view != '' else 0
+            new_dic['normal_view'] = int(n_view) if n_view != '' else 0
+            new_dic['reco_view'] = int(r_view) if r_view != '' else 0
             new_dic['view_time'] = view_time
             
             new_title_dic[href] = new_dic
@@ -140,11 +140,12 @@ class ChrollingFmkorea(ChrollingBase):
             if response.status_code == 200:
                 self.cookies = self.last_cookies
             else:
+                self.cookies = None
                 print('fm_korea가 우리를 배신했어 fuck fmkorea')
                 break
             
             self.title_dic.update(self.parse_title(response))
-            time.sleep(np.random.uniform(0,2))
+            time.sleep(np.random.uniform(0,1))
     
     def chrolling_article(self):
         
@@ -153,7 +154,7 @@ class ChrollingFmkorea(ChrollingBase):
         for href in href_list:
             
             board_url = href
-            response = requests.get(board_url, headers = self.headers, cookies = {'PHPSESSID' : self.cookies})
+            response = requests.get(board_url, headers = self.headers, cookies = self.cookies)
             
             
             html_text = response.text
@@ -165,7 +166,7 @@ class ChrollingFmkorea(ChrollingBase):
             self.title_dic[href]['article'] = article
             self.title_dic[href]['real_time'] = times
             
-            random_value = np.random.uniform(0,2)
+            random_value = np.random.uniform(0,1)
             time.sleep(random_value)
 #%%
 
