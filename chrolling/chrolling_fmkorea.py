@@ -10,8 +10,8 @@ import os
 import time
 
 
-#this_folder_dir = os.path.dirname(os.path.abspath(__file__))
-#sys.path.append(this_folder_dir)
+this_folder_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(this_folder_dir)
 from chrolling_base import ChrollingBase
 
 #%%
@@ -27,7 +27,7 @@ class ChrollingFmkorea(ChrollingBase):
         self.last_cookies: str = None
         self.last_cookies_time: str = None 
         
-        self.request_url = self.url + '/maple'
+        self.request_url = self.url + '/afreecatv'
         self.last_url = self.url + '/board'
         
         self.headers = {'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" 
@@ -36,6 +36,7 @@ class ChrollingFmkorea(ChrollingBase):
         
         self.is_board_break = False
         self.max_page = 5
+    
     
     def get_title_name(self, title):
         title = title.find("a")
@@ -77,10 +78,10 @@ class ChrollingFmkorea(ChrollingBase):
             
         else:
             
-            self.request_url = f"https://www.fmkorea.com/index.php?mid=maple&page={page}"
+            self.request_url = f"https://www.fmkorea.com/index.php?mid=afreecatv&page={page}"
             response = requests.get(self.request_url
                                 , headers = self.headers
-                                , cookies = {'PHPSESSID': self.cookies})
+                                , cookies = self.cookies)
             
         
         self.last_url = self.request_url
@@ -171,19 +172,31 @@ class ChrollingFmkorea(ChrollingBase):
 #%%
 
 ch = ChrollingFmkorea()
+#%%
+ch.max_page = 20
 ch.chrolling_title()
-ch.chrolling_article()
+#ch.chrolling_article()
 #%%
 z = ch.title_dic
 #%%
 
 
 
-
-
-#%%
-z = ch.title_dic
-
+values = ch.title_dic.values()
+old_str_list = list()
+old_str = ''
+old_len = 0
+for value in values:
+    new_str = value['title'].strip() + '.\n'
+    new_len = len(new_str)
+    
+    if old_len + new_len > 1000:
+        old_str_list.append(old_str)
+        old_str = ''
+        old_len = 0
+    else:
+        old_str += new_str
+        old_len +=new_len
 #%%
 '''
 # 보드 전체 크롤링(현재 사용 X)

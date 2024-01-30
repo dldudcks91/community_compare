@@ -11,7 +11,11 @@ import time
 '''
 인벤은 특정시간내에 몇회이상 크롤링을 하면 못 가져가게 만드는거 같음
 '''
+#from chrolling_base import ChrollingBase
 
+class ChrollingInven():
+    url = "https://www.inven.co.kr"
+    
 response = requests.get("https://www.inven.co.kr/board/maple/5974")
 cookies = response.cookies.items()[0][1]
 print(response.status_code)
@@ -21,7 +25,17 @@ soup = bs(html_text, 'html.parser')
 #%%
 cookies = response.cookies.get_dict()
 #%%
-1708772527 - time.time()
+def get_title_name( title):
+    title = title.find("a")
+    text = title.text
+    mid_idx = text.find(']')
+    
+    type_text = text[:mid_idx+1].strip()
+    title_text = text[mid_idx+1:].strip()
+
+    href = title.get('href')
+    
+    return [type_text, title_text, href]
 #%%
 
 
@@ -30,7 +44,7 @@ authors = soup.findAll("td", attrs = {'class':['user']})[4:]
 times = soup.findAll("td", attrs = {'class':['date']})[4:]
 normal_views = soup.findAll("td", attrs = {'class':['view']})[4:]
 recommend_views  = soup.findAll("td", attrs = {'class':['reco']})[4:]
-
+#%%
 view_time = time.time()
 new_title_dic=dict()
 for title, author, time_text, normal_view, recommend_view in zip(titles, authors, times, normal_views, recommend_views):
@@ -57,7 +71,7 @@ title_dic.update(new_title_dic)
 #%%
 
 headers = {'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" 
-            , 'language': "ko-KR"}
+            , 'referer': "https://www.inven.co.kr/board/maple/5974", 'language': "ko-KR"}
 
 href_list = list(title_dic.keys())
 
@@ -72,43 +86,29 @@ for href in href_list:
     html_text = response.text
     post_soup = bs(html_text, 'html.parser')
 
-    article = post_soup.find('div', attrs = {'id':[ 'powerbbsContent']}).text.strip()
+    article = post_soup.find('div', attrs = {'id':[ 'powerbbsContent']})
+    
+    article_text = article.text.strip()
+    
+    images = article.findAll('img')
+    image_list = list()
+    
+    for image in images:
+        image_list.append(image.get('src'))
+    
+    
     time_text = post_soup.find('div', attrs = {'class':[ 'articleDate']}).text
 
-    title_dic[href]['article'] = article
+    title_dic[href]['article'] = article_text
     title_dic[href]['real_time'] = time_text
+    title_dic[href]['image_list'] = image_list
     
-    random_value = np.random.uniform(0,1)
+    random_value = np.random.uniform(0,5)
     time.sleep(random_value)
     
     
-    
+      
     i+=1
     
 #%%
 
-#%%
-    times = post_soup.find('span', attrs = {'class':[ 'articleDate']})
-    print(times)
-    #%%
-    print(post_soup)
-    #%%
-    post_soup.find('div', attrs = {'id':[ 'powerbbsContent']}).text.strip()
-    #%%
-def get_title_name( title):
-    title = title.find("a")
-    text = title.text
-    mid_idx = text.find(']')
-    
-    type_text = text[:mid_idx+1].strip()
-    title_text = text[mid_idx+1:].strip()
-
-    href = title.get('href')
-    
-    return [type_text, title_text, href]
-    
-#%%
-
-
-#%%
-a == b
