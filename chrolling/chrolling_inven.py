@@ -15,8 +15,8 @@ import time
 
 class ChrollingInven():
     url = "https://www.inven.co.kr"
-    
-response = requests.get("https://www.inven.co.kr/board/maple/5974")
+session = requests.Session()
+response = session.get("https://www.inven.co.kr/board/maple/5974")
 cookies = response.cookies.items()[0][1]
 print(response.status_code)
 html_text = response.text
@@ -103,7 +103,7 @@ for href in href_list:
     title_dic[href]['real_time'] = time_text
     title_dic[href]['image_list'] = image_list
     
-    random_value = np.random.uniform(0,5)
+    random_value = np.random.uniform(0,1)
     time.sleep(random_value)
     
     

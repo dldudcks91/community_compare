@@ -62,13 +62,13 @@ def get_title_name(title):
     
     return [title_text, href]
 #%%
-
 titles = soup.findAll("td", attrs = {'class':['gall_tit']})[3:]
 authors = soup.findAll("td", attrs = {'class':['gall_writer']})[3:]
 times = soup.findAll("td", attrs = {'class':['gall_date']})[3:]
 normal_views = soup.findAll("td", attrs = {'class':['gall_count']})[3:]
 recommend_views  = soup.findAll("td", attrs = {'class':['gall_recommend']})[3:]
 
+#%%
 view_time = time.time()
 new_title_dic=dict()
 for title, author, time_text, normal_view, recommend_view in zip(titles, authors, times, normal_views, recommend_views):
