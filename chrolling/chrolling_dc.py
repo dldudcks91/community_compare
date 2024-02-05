@@ -20,7 +20,11 @@ csid = None
 
 url = 'https://gall.dcinside.com/'
 #%%
-response = requests.get("https://gall.dcinside.com/board/lists/?id=maplestory_new", 
+session = requests.Session()
+
+
+#%%
+response = session.get("https://gall.dcinside.com/board/lists/?id=maplestory_new", 
                         params = {'id': 'maplestory_new'}, 
                         headers = headers,
                         cookies = cookies
@@ -49,10 +53,6 @@ if cookies.get('csid') == None:
 else:
     csid = cookies['csid']
     
-#%%
-#%%
-#%%
-#%%
 #%%
 def get_title_name(title):
     
@@ -89,9 +89,13 @@ for title, author, time_text, normal_view, recommend_view in zip(titles, authors
     new_dic['view_time'] = view_time
     new_title_dic[href] = new_dic
 #%%
-
+#%%
+title_dic = dict()
+title_dic.update(new_title_dic)
+#%%
 headers = {'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" 
-            , 'referer': "https://www.inven.co.kr/board/maple/5974", 'language': "ko-KR"}
+           
+           , 'referer': "https://gall.dcinside.com/board/lists/?id=maplestory_new", 'language': "ko-KR"}
 
 href_list = list(title_dic.keys())
 
@@ -100,13 +104,13 @@ cookies = {}
 for href in href_list:
     
     board_url = href
-    response = requests.get(board_url, headers = headers, cookies = cookies)
+    response = session.get(board_url, headers = headers, cookies = cookies, params = {'id': 'maplestory_new'})
     print(i, response.status_code, response.cookies.items())    
     cookies = response.cookies.get_dict()
     html_text = response.text
     post_soup = bs(html_text, 'html.parser')
 
-    article = post_soup.find('div', attrs = {'id':[ 'powerbbsContent']})
+    article = post_soup.find('div', attrs = {'class':[ 'write_div']})
     
     article_text = article.text.strip()
     
@@ -117,13 +121,13 @@ for href in href_list:
         image_list.append(image.get('src'))
     
     
-    time_text = post_soup.find('div', attrs = {'class':[ 'articleDate']}).text
+    time_text = post_soup.find('span', attrs = {'class':[ 'gall_date']}).text
 
     title_dic[href]['article'] = article_text
     title_dic[href]['real_time'] = time_text
     title_dic[href]['image_list'] = image_list
     
-    random_value = np.random.uniform(0,5)
+    random_value = np.random.uniform(0,1)
     time.sleep(random_value)
     
     

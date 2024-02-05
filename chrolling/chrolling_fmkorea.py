@@ -16,8 +16,8 @@ from chrolling_base import ChrollingBase
 
 #%%
 class ChrollingFmkorea(ChrollingBase):
-    url = 'https://www.fmkorea.com'
     
+    url = 'https://www.fmkorea.com'
     def __init__(self):
         
         self.title_dic = dict()
@@ -27,8 +27,8 @@ class ChrollingFmkorea(ChrollingBase):
         self.last_cookies: str = None
         self.last_cookies_time: str = None 
         
-        self.request_url = self.url + '/afreecatv'
-        self.last_url = self.url + '/board'
+        self.request_url = self.url + '/maple'
+        self.last_url = self.request_url
         
         self.headers = {'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" 
                     ,'referer': self.last_url, 'language': "ko-KR"}
@@ -78,7 +78,7 @@ class ChrollingFmkorea(ChrollingBase):
             
         else:
             
-            self.request_url = f"https://www.fmkorea.com/index.php?mid=afreecatv&page={page}"
+            self.request_url = f"https://www.fmkorea.com/index.php?mid=maple&page={page}"
             response = requests.get(self.request_url
                                 , headers = self.headers
                                 , cookies = self.cookies)
@@ -186,8 +186,9 @@ values = ch.title_dic.values()
 old_str_list = list()
 old_str = ''
 old_len = 0
-for value in values:
-    new_str = value['title'].strip() + '.\n'
+
+for i, value in enumerate(values):
+    new_str = f'{i}.' + value['title'].strip() + '. '
     new_len = len(new_str)
     
     if old_len + new_len > 1000:
