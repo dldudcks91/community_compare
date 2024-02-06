@@ -8,12 +8,12 @@ import pandas as pd
 import sys
 import os
 import time
-'''
-인벤은 특정시간내에 몇회이상 크롤링을 하면 못 가져가게 만드는거 같음
-'''
-#from chrolling_base import ChrollingBase
 
-class ChrollingInven():
+this_folder_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(this_folder_dir)
+from chrolling_base import ChrollingBase
+#%%
+class ChrollingInven(ChrollingBase):
     url = "https://www.inven.co.kr"
     
     def __init__(self):
@@ -30,7 +30,7 @@ class ChrollingInven():
         self.last_cookies: str = None
         self.last_cookies_time: str = None 
         
-        self.request_url = self.url + "board/maple/5974"
+        self.request_url = self.url + "/board/maple/5974"
         self.last_url = self.request_url
         
         self.headers.update({'referer': self.last_url})
@@ -43,49 +43,47 @@ class ChrollingInven():
         self.site_name = 'inven'
         
         
-        def request_title(self, page):
-            '''
-            게시판 title response가져오는 함수
+    def request_title(self, page):
+        '''
+        게시판 title response가져오는 함수
+        
+            cookies 존재 유무에 따라 요청하는 url이 바뀜
+        
+        Parameter
+        ----------
+        
+            page: 게시판 page
+        
             
-                cookies 존재 유무에 따라 요청하는 url이 바뀜
-            
-            Parameter
-            ----------
-            
-                page: 게시판 page
-            
-                
-            Return
-            -------
-            
-                reponse: http get 요청 결과 response
-            '''
-            
-            if not self.cookies:
-                response = self.session.get(self.request_url, params = {'id': 'maplestory_new'}, headers = self.headers)
-                
-            else:
-                
-                self.request_url = f"https://gall.dcinside.com/board/lists/?id=maplestory_new&page={page}"
-                response = self.session.get(self.request_url, 
-                                        params = {'id': 'maplestory_new'},
-                                        headers = self.headers,
-                                        cookies = self.cookies)       
-                
-            return response
+        Return
+        -------
+        
+            reponse: http get 요청 결과 response
+        '''
+        
+        if page == 1:
+            request_url =  self.request_url
+        else:
+            request_url = self.request_url + f'?p={page}'
+        response = self.session.get(request_url, 
+                                    headers = self.headers,
+                                    cookies = self.cookies)       
+        
+        self.last_url = request_url
+        return response
         
         
-        def get_title_name(self, title):
-            title = title.find("a")
-            text = title.text
-            mid_idx = text.find(']')
-            
-            type_text = text[:mid_idx+1].strip()
-            title_text = text[mid_idx+1:].strip()
+    def get_title_name(self, title):
+        title = title.find("a")
+        text = title.text
+        mid_idx = text.find(']')
+        
+        type_text = text[:mid_idx+1].strip()
+        title_text = text[mid_idx+1:].strip()
 
-            href = title.get('href')
-            
-            return [type_text, title_text, href]
+        href = title.get('href')
+        
+        return [type_text, title_text, href]
         
     def parse_title(self, response):
         '''
@@ -133,24 +131,30 @@ class ChrollingInven():
             new_title_dic[href] = new_dic
         return new_title_dic
     
+    def update_cookies(self, response):
+        if response.cookies.get_dict() != None:
+            
+            self.cookies.update(response.cookies.get_dict())
+            
+            
     def chrolling_title(self):
         
         for i, page in enumerate(range(1,self.max_page+1)):
             response = self.request_title(page)
            
             if response.status_code == 200:
-                self.cookies = response.cookies.get_dict()
-                self.headers.update({'referer': self.request_url})
+                self.update_cookies(response)
+                self.headers.update({'referer': self.last_url})
                 print(f'{page}번째 page titles을 {self.site_name}가 성공적으로 내려주셨어')
             else:
-                self.cookies = None #초심으로 돌아가버릐긔
-                print(f'{i}번째에서 {self.site_name}가 우리를 배신했어 fucking {self.site_name}')
+                #self.cookies = None #초심으로 돌아가버릐긔
+                print(f'{page}번째에서 {self.site_name}가 우리를 배신했어 fucking {self.site_name}')
                 break
             
             self.title_dic.update(self.parse_title(response))
             
             
-            time.sleep(np.random.uniform(0,1))
+            time.sleep(np.random.uniform(0,self.max_sleep_time))
     
 
 

@@ -66,28 +66,15 @@ class ChrollingFmkorea(ChrollingBase):
             reponse: http get 요청 결과 response
         '''
         
-        if not self.cookies:
-            response = self.session.get(self.request_url, headers = self.headers)
-            
-            # fm 코리아는 처음에만 cookies를 던져줌. 여기서 받은 cookies를 나중에 써야되는 구조
-            if response.status_code == 200:
-            
-                cookies = response.cookies.get_dict()
-                
-                self.last_cookies = cookies
-                self.last_cookies_time = time.time()
-            
-            
+        if page == 1:
+            request_url =  self.request_url
         else:
-            
-            self.request_url = f"https://www.fmkorea.com/index.php?mid=maple&page={page}"
-            response = requests.get(self.request_url
-                                , headers = self.headers
-                                , cookies = self.cookies)
+            request_url = self.request_url + f'&page={page}'
+        
+        response = requests.get(request_url, headers = self.headers, cookies = self.cookies)
             
         
-        self.last_url = self.request_url
-        
+        self.last_url = request_url
         return response
 
         
@@ -172,16 +159,22 @@ class ChrollingFmkorea(ChrollingBase):
     
         return new_title_dic
     
+    def update_cookies(self, response):
+        if response.cookies.get_dict() != None:
+            
+            self.cookies.update(response.cookies.get_dict())
+            
     def chrolling_title(self):
         for i, page in enumerate(range(1,self.max_page+1)):
             response = self.request_title(page)
             
             
             if response.status_code == 200:
-                self.cookies = self.last_cookies
+                self.update_cookies(response)
+                self.headers.update({'referer': self.last_url})
                 print(f'{page}번째 page titles을 {self.site_name}가 성공적으로 내려주셨어')
             else:
-                self.cookies = None
+                #self.cookies = None
                 print(f'{page}번째에서 {self.site_name}가 우리를 배신했어 fucking {self.site_name}')
                 break
             
@@ -208,40 +201,43 @@ class ChrollingFmkorea(ChrollingBase):
             self.title_dic[href]['article'] = article
             self.title_dic[href]['real_time'] = times
             
-            random_value = np.random.uniform(0,1)
+            random_value = np.random.uniform(0,self.max_sleep_time)
             time.sleep(random_value)
 #%%
 
-ch = ChrollingFmkorea()
+
+
 #%%
-ch.max_page = 5
-ch.set_session(requests.Session())
-ch.chrolling_title()
-#ch.chrolling_article()
-#%%
-z = ch.title_dic
-#%%
-ch.cookies
-#%%
+# ch = ChrollingFmkorea()
+# #%%
+# ch.max_page = 5
+# ch.set_session(requests.Session())
+# ch.chrolling_title()
+# #ch.chrolling_article()
+# #%%
+# z = ch.title_dic
+# #%%
+# ch.cookies
+# #%%
 
 
 
-values = ch.title_dic.values()
-old_str_list = list()
-old_str = ''
-old_len = 0
+# values = ch.title_dic.values()
+# old_str_list = list()
+# old_str = ''
+# old_len = 0
 
-for i, value in enumerate(values):
-    new_str = f'{i}.' + value['title'].strip() + '. '
-    new_len = len(new_str)
+# for i, value in enumerate(values):
+#     new_str = f'{i}.' + value['title'].strip() + '. '
+#     new_len = len(new_str)
     
-    if old_len + new_len > 1000:
-        old_str_list.append(old_str)
-        old_str = ''
-        old_len = 0
-    else:
-        old_str += new_str
-        old_len +=new_len
+#     if old_len + new_len > 1000:
+#         old_str_list.append(old_str)
+#         old_str = ''
+#         old_len = 0
+#     else:
+#         old_str += new_str
+#         old_len +=new_len
 #%%
 '''
 # 보드 전체 크롤링(현재 사용 X)

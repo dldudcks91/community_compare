@@ -8,18 +8,84 @@ import pandas as pd
 import sys
 import os
 import time
-'''
 
-'''
-headers = {'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" 
-           , 'referers': 'https://cafe.naver.com/black3vezx/'
-           , 'language': "ko-KR"}
+this_folder_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(this_folder_dir)
+from chrolling_base import ChrollingBase
+#%%
 
-cookies = dict()
-phpsessid = None
-csid = None
 
-url = 'https://cafe.naver.com/black3vezx/ArticleList.nhn?search.clubid=28957699&amp;search.boardtype=L'
+class ChrollingInven(ChrollingBase):
+    url = "https://cafe.naver.com/black3vezx"
+    
+    def __init__(self):
+        
+        self.title_dic = dict()
+        self.session = requests.Session()
+        
+        
+        
+        self.cookies = dict()
+        self.phpsessid: int = None # dc에서 사용하는 쿠키
+        self.csid: int = None # dc에서 사용하는 쿠키
+        
+        self.last_cookies: str = None
+        self.last_cookies_time: str = None 
+        
+        self.request_url = self.url + '/ArticleList.nhn?search.clubid=28957699&amp;search.boardtype=L'
+        self.last_url = self.request_url
+        
+        self.headers.update({'referers': self.url})
+                    
+        
+        
+        self.is_board_break = False
+        self.max_page = 5
+    
+        self.site_name = 'inven'
+        
+    def request_title(self, page):
+        '''
+        게시판 title response가져오는 함수
+        
+            cookies 존재 유무에 따라 요청하는 url이 바뀜
+        
+        Parameter
+        ----------
+        
+            page: 게시판 page
+        
+            
+        Return
+        -------
+        
+            reponse: http get 요청 결과 response
+        '''
+        
+        if not self.cookies:
+            response = self.session.get(self.request_url, 
+                                        headers = self.headers
+                                        )
+            
+        else:
+            
+            self.request_url = f"https://gall.dcinside.com/board/lists/?id=maplestory_new&page={page}"
+            response = self.session.get(self.request_url, 
+                                    
+                                        headers = self.headers,
+                                        cookies = self.cookies
+                                        )       
+            
+        return response
+        
+
+
+#%%
+session = requests.Session()
+??session
+#%%
+
+
 #%%
 
 session = requests.Session()
@@ -29,7 +95,7 @@ response = session.get(url,
                         headers = headers,
                         cookies = cookies
             )
-cookies = response.cookies.get_dict()
+cookies.update(response.cookies.get_dict())
 print(response.status_code)
 html_text = response.text
 

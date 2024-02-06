@@ -63,36 +63,35 @@ class ChrollingDC(ChrollingBase):
             reponse: http get 요청 결과 response
         '''
         
-        if not self.cookies:
-            response = self.session.get(self.request_url, params = {'id': 'maplestory_new'}, headers = self.headers)
-            
+        
+        if page == 1:
+            request_url =  self.request_url
         else:
-            
-            self.request_url = f"https://gall.dcinside.com/board/lists/?id=maplestory_new&page={page}"
-            response = self.session.get(self.request_url, 
-                                    params = {'id': 'maplestory_new'},
-                                    headers = self.headers,
-                                    cookies = self.cookies)       
-            
+            request_url = self.request_url + f'&page={page}'
+        response = self.session.get(request_url, params = {'id': 'maplestory_new'}, headers = self.headers, cookies = self.cookies) 
+        
+        self.last_url = request_url
         return response
 
     
             
-    def set_cookies(self):
+    # def set_cookies(self):
+        '''
+        쿠키 업데이트 하는 함수 - 지금 안씀
+        '''
         
-        
-            if self.cookies.get('PHPSESSID') != None:
-                
-                self.phpsessid = self.cookies['PHPSESSID']
-            else:
-                self.cookies['PHPSESSID'] = self.phpsessid if self.phpsessid != None else None
-                
-                
-            if self.cookies.get('csid') != None:
-                
-                self.phpsessid = self.cookies['csid']
-            else:
-                self.cookies['csid'] = self.phpsessid if self.phpsessid != None else None
+    #     if self.cookies.get('PHPSESSID') != None:
+            
+    #         self.phpsessid = self.cookies['PHPSESSID']
+    #     else:
+    #         self.cookies['PHPSESSID'] = self.phpsessid if self.phpsessid != None else None
+            
+            
+    #     if self.cookies.get('csid') != None:
+            
+    #         self.phpsessid = self.cookies['csid']
+    #     else:
+    #         self.cookies['csid'] = self.phpsessid if self.phpsessid != None else None
     
     
     def get_title_name(self, title):
@@ -155,49 +154,47 @@ class ChrollingDC(ChrollingBase):
     
         return new_title_dic
     
+    def update_cookies(self, response):
+        if response.cookies.get_dict() != None:
+            
+            self.cookies.update(response.cookies.get_dict())
+            
     def chrolling_title(self):
         for i, page in enumerate(range(1,self.max_page+1)):
             response = self.request_title(page)
            
             if response.status_code == 200:
-                self.cookies = response.cookies.get_dict()
-                self.set_cookies()
-                self.headers.update({'referer': self.request_url})
+                self.update_cookies(response)
+                #self.set_cookies()
+                self.headers.update({'referer': self.last_url})
                 print(f'{page}번째 page titles을 {self.site_name}가 성공적으로 내려주셨어')
             else:
-                self.cookies = None #초심으로 돌아가버릐긔
-                print(f'{i}번째에서 {self.site_name}가 우리를 배신했어 fucking {self.site_name}')
+                #self.cookies = None #초심으로 돌아가버릐긔
+                print(f'{page}번째에서 {self.site_name}가 우리를 배신했어 fucking {self.site_name}')
                 break
             
             self.title_dic.update(self.parse_title(response))
             
             
-            time.sleep(np.random.uniform(0,1))
+            time.sleep(np.random.uniform(0,self.max_sleep_time))
     
 #%%
 from chrolling_fmkorea import ChrollingFmkorea
+from chrolling_inven import ChrollingInven
 cf = ChrollingFmkorea()
 cd = ChrollingDC()
+ci = ChrollingInven()
 #%%
-
 
 from threading import Thread
 
-
-
-
-cf.set_session(requests.Session())
-cd.set_session(requests.Session())
 #%%
-cf.chrolling_title()
-
-
 
 #%%
 start_time = time.time()
 threads = []
 
-for i in [cf.chrolling_title, cd.chrolling_title]:
+for i in [cf.chrolling_title, cd.chrolling_title, ci.chrolling_title]:
     
     thread = Thread(target = i)
     thread.start()
@@ -216,8 +213,9 @@ end_time = time.time()
 print(end_time - start_time)
 
 
+#%%
 
-
+a = [cf.title_dic, cd.title_dic, ci.title_dic]
 #%%
 
 
