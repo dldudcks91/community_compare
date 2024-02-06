@@ -16,12 +16,18 @@ from chrolling_base import ChrollingBase
 
 #%%
 class ChrollingFmkorea(ChrollingBase):
+    '''
+    fm-korea 크롤링하는 class
     
+    
+    '''
     url = 'https://www.fmkorea.com'
+    
     def __init__(self):
         
+        
         self.title_dic = dict()
-        self.response: str = None
+        self.session = None
         
         self.cookies: str = None
         self.last_cookies: str = None
@@ -30,44 +36,43 @@ class ChrollingFmkorea(ChrollingBase):
         self.request_url = self.url + '/maple'
         self.last_url = self.request_url
         
-        self.headers = {'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" 
-                    ,'referer': self.last_url, 'language': "ko-KR"}
         
+        self.headers.update({'referer': self.last_url})
+                    
         
         self.is_board_break = False
         self.max_page = 5
     
+        self.site_name = 'fmkorea'
     
-    def get_title_name(self, title):
-        title = title.find("a")
-        text = title.text.strip()
-        href = title.get('href')
-        
-        return [text, href]
+    
 
-    def get_title_author(self, author):
-        author_name = author.find('a').text
-        
-        author_score_str = author.find('img').get('title')
-        start_idx = author_score_str.find('잉여력')
-        last_idx = author_score_str.find('레벨')
-        end_idx = author_score_str.find('/40')
-        
-        author_score = int(author_score_str[start_idx+4:last_idx-2])
-        author_level = int(author_score_str[last_idx+3:end_idx])
-        
-        return [author_name, author_score, author_level]
+    def set_session(self, session):
+        self.session = session
 
-
+        
     def request_title(self, page):
+        '''
+        게시판 title response가져오는 함수
         
+            cookies 존재 유무에 따라 요청하는 url이 바뀜
         
-        if self.cookies == None:
-            response = requests.get(self.request_url,
-                                headers = self.headers
-                                            #, cookies = {'PHPSESSID': "j9ad5h5o391r90pnd6cbmv8d9v"}
-                                )
+        Parameter
+        ----------
+        
+            page: 게시판 page
+        
             
+        Return
+        -------
+        
+            reponse: http get 요청 결과 response
+        '''
+        
+        if not self.cookies:
+            response = self.session.get(self.request_url, headers = self.headers)
+            
+            # fm 코리아는 처음에만 cookies를 던져줌. 여기서 받은 cookies를 나중에 써야되는 구조
             if response.status_code == 200:
             
                 cookies = response.cookies.get_dict()
@@ -89,10 +94,44 @@ class ChrollingFmkorea(ChrollingBase):
         return response
 
         
+    def get_title_name(self, title):
+        title = title.find("a")
+        text = title.text.strip()
+        href = title.get('href')
         
+        return [text, href]
+    
+    def get_title_author(self, author):
+        author_name = author.find('a').text
+        
+        author_score_str = author.find('img').get('title')
+        start_idx = author_score_str.find('잉여력')
+        last_idx = author_score_str.find('레벨')
+        end_idx = author_score_str.find('/40')
+        
+        author_score = int(author_score_str[start_idx+4:last_idx-2])
+        author_level = int(author_score_str[last_idx+3:end_idx])
+        
+        return [author_name, author_score, author_level]
+    
+    
         # 우리가 얻고자 하는 html 문서가 여기에 담기게 됨
     def parse_title(self, response):
+        '''
+        주어진 response 속 html을 parsing하는 함수
         
+            
+        Parameter
+        ----------
+        
+            response: http get 요청 응답 결과
+        
+            
+        Return
+        -------
+        
+            new_title_dic: parsing결과를 dictionary로 반환. 추후 기존 dictionary에 update.
+        '''
         
         html_text = response.text
         
@@ -129,24 +168,29 @@ class ChrollingFmkorea(ChrollingBase):
             new_dic['reco_view'] = int(r_view) if r_view != '' else 0
             new_dic['view_time'] = view_time
             
+            new_dic['site_name'] = self.site_name
+            
             new_title_dic[href] = new_dic
         
     
         return new_title_dic
     
     def chrolling_title(self):
-        for page in range(1,self.max_page):
+        for i, page in enumerate(range(1,self.max_page+1)):
             response = self.request_title(page)
+            
             
             if response.status_code == 200:
                 self.cookies = self.last_cookies
+                print(f'{page}번째 page titles을 {self.site_name}가 성공적으로 내려주셨어')
             else:
                 self.cookies = None
-                print('fm_korea가 우리를 배신했어 fuck fmkorea')
+                print(f'{page}번째에서 {self.site_name}가 우리를 배신했어 fucking {self.site_name}')
                 break
             
             self.title_dic.update(self.parse_title(response))
             time.sleep(np.random.uniform(0,1))
+    
     
     def chrolling_article(self):
         
@@ -173,11 +217,14 @@ class ChrollingFmkorea(ChrollingBase):
 
 ch = ChrollingFmkorea()
 #%%
-ch.max_page = 20
+ch.max_page = 5
+ch.set_session(requests.Session())
 ch.chrolling_title()
 #ch.chrolling_article()
 #%%
 z = ch.title_dic
+#%%
+ch.cookies
 #%%
 
 
