@@ -167,26 +167,45 @@ class ChrollingDC(ChrollingBase):
     
     
 #%%
-ch = ChrollingFmkorea()
+from chrolling_fmkorea import ChrollingFmkorea
+cf = ChrollingFmkorea()
+cd = ChrollingDC()
 #%%
-ch.max_page = 5
-ch.set_session(requests.Session())
-ch.chrolling_title()
+
 
 from threading import Thread
 
 
+
+
+cf.set_session(requests.Session())
+cd.set_session(requests.Session())
+#%%
+cf.chrolling_title()
+
+
+
+#%%
 start_time = time.time()
+threads = []
+
+for i in [cf.chrolling_title, cd.chrolling_title]:
+    
+    thread = Thread(target = i)
+    thread.start()
+
+    threads.append(thread)
+
+#cf.chrolling_title()
+#cd.chrolling_title()
+
+#%%
+for thread in threads:
+    thread.join()
 
 
-
-
-
-
-
-
-
-
+end_time = time.time()
+print(end_time - start_time)
 
 
 
