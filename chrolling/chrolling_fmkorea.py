@@ -27,7 +27,7 @@ class ChrollingFmkorea(ChrollingBase):
         
         
         self.title_dic = dict()
-        self.session = None
+        self.session = requests.Session()
         
         self.cookies: str = None
         self.last_cookies: str = None
@@ -46,9 +46,6 @@ class ChrollingFmkorea(ChrollingBase):
         self.site_name = 'fmkorea'
     
     
-
-    def set_session(self, session):
-        self.session = session
 
         
     def request_title(self, page):

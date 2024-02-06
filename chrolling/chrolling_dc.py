@@ -16,11 +16,11 @@ from chrolling_base import ChrollingBase
 #%%
 class ChrollingDC(ChrollingBase):
     
-    url = 'https://gall.dcinside.com/'
+    url = 'https://gall.dcinside.com'
     def __init__(self):
         
         self.title_dic = dict()
-        self.session = None
+        self.session = requests.Session()
         
         
         
@@ -31,7 +31,7 @@ class ChrollingDC(ChrollingBase):
         self.last_cookies: str = None
         self.last_cookies_time: str = None 
         
-        self.request_url = self.url + "board/lists/?id=maplestory_new"
+        self.request_url = self.url + "/board/lists/?id=maplestory_new"
         self.last_url = self.request_url
         
         self.headers.update({'referer': self.last_url})
@@ -43,16 +43,28 @@ class ChrollingDC(ChrollingBase):
     
         self.site_name = 'dc_inside'
         
-    def set_session(self, session):
-        self.session = session
+    
     
     def request_title(self, page):
+        '''
+        게시판 title response가져오는 함수
         
+            cookies 존재 유무에 따라 요청하는 url이 바뀜
+        
+        Parameter
+        ----------
+        
+            page: 게시판 page
+        
+            
+        Return
+        -------
+        
+            reponse: http get 요청 결과 response
+        '''
         
         if not self.cookies:
             response = self.session.get(self.request_url, params = {'id': 'maplestory_new'}, headers = self.headers)
-            
-            
             
         else:
             
@@ -60,33 +72,11 @@ class ChrollingDC(ChrollingBase):
             response = self.session.get(self.request_url, 
                                     params = {'id': 'maplestory_new'},
                                     headers = self.headers,
-                                    cookies = self.cookies
-                                    )       
+                                    cookies = self.cookies)       
             
-
-        
-        
-        
         return response
 
-    def chrolling_title(self):
-        for i, page in enumerate(range(1,self.max_page+1)):
-            response = self.request_title(page)
-           
-            if response.status_code == 200:
-                self.cookies = response.cookies.get_dict()
-                self.set_cookies()
-                self.headers.update({'referer': self.request_url})
-                print(f'{page}번째 page titles을 {self.site_name}가 성공적으로 내려주셨어')
-            else:
-                self.cookies = None #초심으로 돌아가버릐긔
-                print(f'{i}번째에서 {self.site_name}가 우리를 배신했어 fucking {self.site_name}')
-                break
-            
-            self.title_dic.update(self.parse_title(response))
-            
-            
-            time.sleep(np.random.uniform(0,1))
+    
             
     def set_cookies(self):
         
@@ -165,6 +155,24 @@ class ChrollingDC(ChrollingBase):
     
         return new_title_dic
     
+    def chrolling_title(self):
+        for i, page in enumerate(range(1,self.max_page+1)):
+            response = self.request_title(page)
+           
+            if response.status_code == 200:
+                self.cookies = response.cookies.get_dict()
+                self.set_cookies()
+                self.headers.update({'referer': self.request_url})
+                print(f'{page}번째 page titles을 {self.site_name}가 성공적으로 내려주셨어')
+            else:
+                self.cookies = None #초심으로 돌아가버릐긔
+                print(f'{i}번째에서 {self.site_name}가 우리를 배신했어 fucking {self.site_name}')
+                break
+            
+            self.title_dic.update(self.parse_title(response))
+            
+            
+            time.sleep(np.random.uniform(0,1))
     
 #%%
 from chrolling_fmkorea import ChrollingFmkorea
@@ -199,7 +207,7 @@ for i in [cf.chrolling_title, cd.chrolling_title]:
 #cf.chrolling_title()
 #cd.chrolling_title()
 
-#%%
+
 for thread in threads:
     thread.join()
 
@@ -213,46 +221,46 @@ print(end_time - start_time)
 #%%
 
 
-'''
-article 가져오기
-'''
-headers = {'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" 
+# '''
+# article 가져오기
+# '''
+# headers = {'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" 
            
-           , 'referer': "https://gall.dcinside.com/board/lists/?id=maplestory_new", 'language': "ko-KR"}
+#            , 'referer': "https://gall.dcinside.com/board/lists/?id=maplestory_new", 'language': "ko-KR"}
 
-href_list = list(title_dic.keys())
+# href_list = list(title_dic.keys())
 
-i = 1
-cookies = {}
-for href in href_list:
+# i = 1
+# cookies = {}
+# for href in href_list:
     
-    board_url = href
-    response = session.get(board_url, headers = headers, cookies = cookies, params = {'id': 'maplestory_new'})
-    print(i, response.status_code, response.cookies.items())    
-    cookies = response.cookies.get_dict()
-    html_text = response.text
-    post_soup = bs(html_text, 'html.parser')
+#     board_url = href
+#     response = session.get(board_url, headers = headers, cookies = cookies, params = {'id': 'maplestory_new'})
+#     print(i, response.status_code, response.cookies.items())    
+#     cookies = response.cookies.get_dict()
+#     html_text = response.text
+#     post_soup = bs(html_text, 'html.parser')
 
-    article = post_soup.find('div', attrs = {'class':[ 'write_div']})
+#     article = post_soup.find('div', attrs = {'class':[ 'write_div']})
     
-    article_text = article.text.strip()
+#     article_text = article.text.strip()
     
-    images = article.findAll('img')
-    image_list = list()
+#     images = article.findAll('img')
+#     image_list = list()
     
-    for image in images:
-        image_list.append(image.get('src'))
+#     for image in images:
+#         image_list.append(image.get('src'))
     
     
-    time_text = post_soup.find('span', attrs = {'class':[ 'gall_date']}).text
+#     time_text = post_soup.find('span', attrs = {'class':[ 'gall_date']}).text
 
-    title_dic[href]['article'] = article_text
-    title_dic[href]['real_time'] = time_text
-    title_dic[href]['image_list'] = image_list
+#     title_dic[href]['article'] = article_text
+#     title_dic[href]['real_time'] = time_text
+#     title_dic[href]['image_list'] = image_list
     
-    random_value = np.random.uniform(0,1)
-    time.sleep(random_value)
+#     random_value = np.random.uniform(0,1)
+#     time.sleep(random_value)
     
     
       
-    i+=1
+#     i+=1
