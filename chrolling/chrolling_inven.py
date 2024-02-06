@@ -65,9 +65,7 @@ class ChrollingInven(ChrollingBase):
             request_url =  self.request_url
         else:
             request_url = self.request_url + f'?p={page}'
-        response = self.session.get(request_url, 
-                                    headers = self.headers,
-                                    cookies = self.cookies)       
+        response = self.session.get(request_url, headers = self.headers, cookies = self.cookies)       
         
         self.last_url = request_url
         return response
