@@ -167,12 +167,16 @@ class ChrollingDC(ChrollingBase):
     
     
 #%%
+ch = ChrollingFmkorea()
+#%%
+ch.max_page = 5
+ch.set_session(requests.Session())
+ch.chrolling_title()
+
+from threading import Thread
 
 
-
-
-
-
+start_time = time.time()
 
 
 
