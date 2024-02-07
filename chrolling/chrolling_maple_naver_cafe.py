@@ -15,7 +15,7 @@ from chrolling_base import ChrollingBase
 #%%
 
 
-class ChrollingInven(ChrollingBase):
+class ChrollingMapleCafe():
     url = "https://cafe.naver.com/black3vezx"
     
     def __init__(self):
@@ -35,6 +35,7 @@ class ChrollingInven(ChrollingBase):
         self.request_url = self.url + '/ArticleList.nhn?search.clubid=28957699&amp;search.boardtype=L'
         self.last_url = self.request_url
         
+        self.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'}
         self.headers.update({'referers': self.url})
                     
         
@@ -44,7 +45,7 @@ class ChrollingInven(ChrollingBase):
     
         self.site_name = 'inven'
         
-    def request_title(self, page):
+    def request_title(self, page, url = None):
         '''
         게시판 title response가져오는 함수
         
@@ -62,41 +63,34 @@ class ChrollingInven(ChrollingBase):
             reponse: http get 요청 결과 response
         '''
         
-        if not self.cookies:
-            response = self.session.get(self.request_url, 
-                                        headers = self.headers
-                                        )
+        
             
+        
+            
+            
+    
+        if page == 1:
+            request_url =  self.request_url
         else:
-            
-            self.request_url = f"https://gall.dcinside.com/board/lists/?id=maplestory_new&page={page}"
-            response = self.session.get(self.request_url, 
-                                    
-                                        headers = self.headers,
-                                        cookies = self.cookies
-                                        )       
-            
+            request_url = url
+        response = self.session.get(request_url, headers = self.headers, cookies = self.cookies)       
+        
+        self.last_url = request_url
         return response
         
 
 
 #%%
-session = requests.Session()
-??session
+cmf = ChrollingMapleCafe() 
+https://cafe.naver.com/black3vezx?iframe_url=/ArticleList.nhn%3Fsearch.clubid=28957699%26search.boardtype=L%26search.totalCount=151%26search.cafeId=28957699%26search.page=2
+#%%
+response = cmf.request_title(1)
+
+cmf.headers.update({'referers': cmf.request_url})
+#%%
+cmf.headers
 #%%
 
-
-#%%
-
-session = requests.Session()
-#%%
-response = session.get(url, 
-                        
-                        headers = headers,
-                        cookies = cookies
-            )
-cookies.update(response.cookies.get_dict())
-print(response.status_code)
 html_text = response.text
 
 soup = bs(html_text, 'html.parser')
@@ -128,7 +122,7 @@ for title, author, time_text, normal_view in zip(titles, authors, times, normal_
     new_dic = dict()
     
     type_text, title_text, href = get_title_name(title)
-    href = url + href
+    href = cmf.url + href
     new_dic['title_type'] = type_text
     new_dic['title'] = title_text
     new_dic['href'] = href
